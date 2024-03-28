@@ -1,24 +1,11 @@
 package main
 
 import (
-	"america-rental-backend/config"
-	"america-rental-backend/db"
-
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	gin.SetMode(gin.DebugMode)
-
-	err := config.InitEnvironment()
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.Init()
-	if err != nil {
-		panic(err)
-	}
 
 	r := gin.New()
 
