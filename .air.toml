@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "build\\main.exe"
-  cmd = "go build -o ./build/main.exe ."
+  bin = "tmp\\main.exe"
+  cmd = "go build -o ./tmp/main.exe ./cmd/app/main.go"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -36,7 +36,7 @@ tmp_dir = "tmp"
 
 [log]
   main_only = false
-  time = true
+  time = false
 
 [misc]
   clean_on_exit = false
