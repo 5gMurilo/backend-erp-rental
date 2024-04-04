@@ -1,10 +1,9 @@
 package repository
 
 import (
-	"america-rental-backend/adapters/db"
+	"america-rental-backend/internal/adapter/db"
 	"america-rental-backend/internal/user"
 	"america-rental-backend/internal/user/ports"
-	"america-rental-backend/internal/util"
 	"context"
 	"errors"
 	"fmt"
@@ -18,7 +17,9 @@ type UserRepository struct {
 	worker *db.ManagerWorker
 }
 
-const collection string = "user"
+const (
+	collection string = "user"
+)
 
 func NewUserRepository(worker *db.ManagerWorker) ports.UserRepository {
 	return &UserRepository{
@@ -37,25 +38,27 @@ func (u UserRepository) Get(c context.Context, id primitive.ObjectID) (*user.Use
 }
 
 func (u UserRepository) GetAll(c context.Context) (*[]user.User, error) {
+	var rst []user.User
+
 	cursor, err := u.worker.GetCollection(collection).Find(c, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(c)
 
-	rst, err := util.DecodeCursor(c, cursor)
+	err = cursor.All(c, &rst)
 	if err != nil {
 		return nil, err
 	}
 
-	return rst, nil
+	return &rst, nil
 }
 
-func (u UserRepository) Create(c context.Context, data user.User) (string, error) {
+func (u UserRepository) Create(c context.Context, data user.User) (*primitive.ObjectID, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println(err)
-		return "", err
+		return nil, err
 	}
 
 	newUser := user.User{
@@ -75,13 +78,13 @@ func (u UserRepository) Create(c context.Context, data user.User) (string, error
 	rst, err := u.worker.GetCollection(collection).InsertOne(c, newUser)
 	if err != nil {
 		fmt.Println(err)
-		return "", err
+		return nil, err
 	}
 
 	if oId, ok := rst.InsertedID.(primitive.ObjectID); ok {
-		return oId.Hex(), nil
+		return &oId, nil
 	} else {
-		return "", errors.New("erro ao decodificar o Id")
+		return nil, errors.New("erro ao decodificar o Id")
 	}
 }
 
@@ -121,8 +124,8 @@ func (u UserRepository) Update(c context.Context, data user.User, id primitive.O
 }
 
 func (u UserRepository) Delete(c context.Context, id primitive.ObjectID) error {
-	srst := u.worker.GetCollection(collection).FindOne(c, bson.M{"_id": id})
-	if srst == nil {
+	sRst := u.worker.GetCollection(collection).FindOne(c, bson.M{"_id": id})
+	if sRst == nil {
 		return errors.New("Nenhum usuário encontrado")
 	}
 
