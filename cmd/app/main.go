@@ -27,6 +27,10 @@ func main() {
 		usrRoutes := routes.Group("/user")
 		{
 			usrRoutes.GET("/:id", userHandler.Get)
+			usrRoutes.GET("/all", userHandler.GetAll)
+			usrRoutes.POST("/new", userHandler.Create)
+			usrRoutes.PUT("/update/:id", userHandler.Update)
+			usrRoutes.DELETE("/delete/:id", userHandler.Delete)
 		}
 	}
 

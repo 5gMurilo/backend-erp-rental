@@ -8,7 +8,18 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
+  database:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=americarentaldb
+      - MONGO_INITDB_ROOT_PASSWORD=Bjc20285412
+      - MONGO_INITDB_DATABASE=america
+
+    ports:
+      - 27017:27017
   server:
+    restart: always
     build:
       context: .
       target: final

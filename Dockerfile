@@ -31,7 +31,7 @@ ARG TARGETARCH
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server .
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd/app/main.go
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
@@ -71,7 +71,7 @@ USER appuser
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
 
-# Expose the ports that the application listens on.
+# Expose the port that the application listens on.
 EXPOSE 8080
 
 # What the container should run when it is started.

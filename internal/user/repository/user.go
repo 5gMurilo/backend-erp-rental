@@ -89,23 +89,11 @@ func (u UserRepository) Create(c context.Context, data user.User) (*primitive.Ob
 }
 
 func (u UserRepository) Update(c context.Context, data user.User, id primitive.ObjectID) (*user.User, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	usr := u.worker.GetCollection(collection).FindOne(c, id)
-	if usr == nil {
-		fmt.Println("Nenhum usuário encontrado")
-		return nil, errors.New("Nenhum usuário encontrado")
-	}
-
 	newData := user.User{
 		Id:        id,
 		Name:      data.Name,
 		Email:     data.Email,
-		Password:  string(hash),
+		Password:  data.Password,
 		State:     data.State,
 		Role:      data.Role,
 		UserType:  data.UserType,
@@ -114,21 +102,20 @@ func (u UserRepository) Update(c context.Context, data user.User, id primitive.O
 		UpdatedBy: "me",
 	}
 
-	_, err = u.worker.GetCollection(collection).InsertOne(c, newData)
+	rst, err := u.worker.GetCollection(collection).UpdateOne(c, bson.M{"_id": id}, bson.M{"$set": newData})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("repository %e", err)
 		return nil, err
+	}
+
+	if rst.MatchedCount == 0 {
+		return nil, errors.New("update operation failed")
 	}
 
 	return &newData, nil
 }
 
 func (u UserRepository) Delete(c context.Context, id primitive.ObjectID) error {
-	sRst := u.worker.GetCollection(collection).FindOne(c, bson.M{"_id": id})
-	if sRst == nil {
-		return errors.New("Nenhum usuário encontrado")
-	}
-
 	_, err := u.worker.GetCollection(collection).DeleteOne(c, bson.M{"_id": id})
 	if err != nil {
 		return err
