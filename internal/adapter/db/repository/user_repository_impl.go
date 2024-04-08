@@ -37,6 +37,15 @@ func (u UserRepositoryImpl) Get(c context.Context, id primitive.ObjectID) (*doma
 	return result, nil
 }
 
+func (u UserRepositoryImpl) GetByEmail(c context.Context, email string) (*domain.User, error) {
+	var result *domain.User
+	err := u.worker.GetCollection(collection).FindOne(c, bson.M{"email": email}).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (u UserRepositoryImpl) GetAll(c context.Context) (*[]domain.User, error) {
 	var rst []domain.User
 

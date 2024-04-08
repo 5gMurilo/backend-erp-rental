@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	Get(c context.Context, id primitive.ObjectID) (*domain.User, error)
+	GetByEmail(c context.Context, email string) (*domain.User, error)
 	GetAll(c context.Context) (*[]domain.User, error)
 	Create(c context.Context, data domain.User) (*primitive.ObjectID, error)
 	Update(c context.Context, data domain.User, id primitive.ObjectID) (*domain.User, error)
