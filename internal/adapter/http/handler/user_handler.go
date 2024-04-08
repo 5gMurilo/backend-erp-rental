@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"america-rental-backend/internal/user"
-	"america-rental-backend/internal/user/ports"
+	"america-rental-backend/internal/core/domain"
+	"america-rental-backend/internal/core/ports"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -56,7 +56,7 @@ func (u UserHandler) GetAll(g *gin.Context) {
 }
 
 func (u UserHandler) Create(g *gin.Context) {
-	var usr user.User
+	var usr domain.User
 
 	if err := g.BindJSON(&usr); err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
@@ -95,7 +95,7 @@ func (u UserHandler) Update(g *gin.Context) {
 		return
 	}
 
-	var body user.User
+	var body domain.User
 	if err = g.BindJSON(&body); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -103,7 +103,7 @@ func (u UserHandler) Update(g *gin.Context) {
 		return
 	}
 
-	newUserData := user.User{
+	newUserData := domain.User{
 		Id:            objId,
 		Name:          body.Name,
 		Email:         body.Email,

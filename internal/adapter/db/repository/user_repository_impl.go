@@ -2,8 +2,8 @@ package repository
 
 import (
 	"america-rental-backend/internal/adapter/db"
-	"america-rental-backend/internal/user"
-	"america-rental-backend/internal/user/ports"
+	"america-rental-backend/internal/core/domain"
+	"america-rental-backend/internal/core/ports"
 	"context"
 	"errors"
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type UserRepository struct {
+type UserRepositoryImpl struct {
 	worker *db.ManagerWorker
 }
 
@@ -21,14 +21,14 @@ const (
 	collection string = "user"
 )
 
-func NewUserRepository(worker *db.ManagerWorker) ports.UserRepository {
-	return &UserRepository{
+func NewUserRepositoryImpl(worker *db.ManagerWorker) ports.UserRepository {
+	return &UserRepositoryImpl{
 		worker: worker,
 	}
 }
 
-func (u UserRepository) Get(c context.Context, id primitive.ObjectID) (*user.User, error) {
-	var result *user.User
+func (u UserRepositoryImpl) Get(c context.Context, id primitive.ObjectID) (*domain.User, error) {
+	var result *domain.User
 	err := u.worker.GetCollection(collection).FindOne(c, bson.M{"_id": id}).Decode(&result)
 	if err != nil {
 		return nil, err
@@ -37,8 +37,8 @@ func (u UserRepository) Get(c context.Context, id primitive.ObjectID) (*user.Use
 	return result, nil
 }
 
-func (u UserRepository) GetAll(c context.Context) (*[]user.User, error) {
-	var rst []user.User
+func (u UserRepositoryImpl) GetAll(c context.Context) (*[]domain.User, error) {
+	var rst []domain.User
 
 	cursor, err := u.worker.GetCollection(collection).Find(c, bson.M{})
 	if err != nil {
@@ -54,14 +54,14 @@ func (u UserRepository) GetAll(c context.Context) (*[]user.User, error) {
 	return &rst, nil
 }
 
-func (u UserRepository) Create(c context.Context, data user.User) (*primitive.ObjectID, error) {
+func (u UserRepositoryImpl) Create(c context.Context, data domain.User) (*primitive.ObjectID, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	newUser := user.User{
+	newUser := domain.User{
 		Id:        primitive.NewObjectID(),
 		Name:      data.Name,
 		Email:     data.Email,
@@ -88,8 +88,8 @@ func (u UserRepository) Create(c context.Context, data user.User) (*primitive.Ob
 	}
 }
 
-func (u UserRepository) Update(c context.Context, data user.User, id primitive.ObjectID) (*user.User, error) {
-	newData := user.User{
+func (u UserRepositoryImpl) Update(c context.Context, data domain.User, id primitive.ObjectID) (*domain.User, error) {
+	newData := domain.User{
 		Id:        id,
 		Name:      data.Name,
 		Email:     data.Email,
@@ -115,7 +115,7 @@ func (u UserRepository) Update(c context.Context, data user.User, id primitive.O
 	return &newData, nil
 }
 
-func (u UserRepository) Delete(c context.Context, id primitive.ObjectID) error {
+func (u UserRepositoryImpl) Delete(c context.Context, id primitive.ObjectID) error {
 	_, err := u.worker.GetCollection(collection).DeleteOne(c, bson.M{"_id": id})
 	if err != nil {
 		return err

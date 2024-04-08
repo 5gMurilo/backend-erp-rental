@@ -2,11 +2,11 @@ package main
 
 import (
 	"america-rental-backend/internal/adapter/db"
-	"america-rental-backend/internal/user/handler"
-	"america-rental-backend/internal/user/repository"
-	"america-rental-backend/internal/user/service"
+	"america-rental-backend/internal/adapter/db/repository"
+	"america-rental-backend/internal/adapter/http"
+	"america-rental-backend/internal/adapter/http/handler"
+	"america-rental-backend/internal/core/service"
 	"context"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -16,25 +16,13 @@ func main() {
 		panic(err)
 	}
 
-	userRepo := repository.NewUserRepository(worker)
+	userRepo := repository.NewUserRepositoryImpl(worker)
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	r := gin.Default()
+	router := http.Router(userHandler)
 
-	routes := r.Group("/api")
-	{
-		usrRoutes := routes.Group("/user")
-		{
-			usrRoutes.GET("/:id", userHandler.Get)
-			usrRoutes.GET("/all", userHandler.GetAll)
-			usrRoutes.POST("/new", userHandler.Create)
-			usrRoutes.PUT("/update/:id", userHandler.Update)
-			usrRoutes.DELETE("/delete/:id", userHandler.Delete)
-		}
-	}
-
-	err = r.Run(":8080")
+	err = router.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
