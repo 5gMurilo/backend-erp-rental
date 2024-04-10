@@ -3,10 +3,11 @@ package http
 import (
 	"america-rental-backend/internal/adapter/http/handler"
 	"america-rental-backend/internal/adapter/http/middleware"
+	"america-rental-backend/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )
 
-func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware) *gin.Engine {
+func Router(token ports.TokenService, userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware) *gin.Engine {
 	r := gin.Default()
 
 	api := r.Group("/api")

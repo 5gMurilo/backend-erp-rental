@@ -5,6 +5,7 @@ import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
 	"github.com/google/uuid"
+	"strings"
 	"time"
 )
 
@@ -22,14 +23,17 @@ func New() (ports.TokenService, error) {
 	}
 
 	token := paseto.NewToken()
-	key := paseto.NewV4SymmetricKey()
 	parser := paseto.NewParser()
+	key, err := paseto.V4SymmetricKeyFromBytes([]byte("Nic999Ame888*L-by-5gMurilo-ar-24"))
+	if err != nil {
+		panic(err)
+	}
 
 	return &PasetoToken{
-		token:    &token,
-		key:      &key,
-		parser:   &parser,
-		duration: duration,
+		&token,
+		&key,
+		&parser,
+		duration,
 	}, nil
 }
 
@@ -65,6 +69,8 @@ func (p PasetoToken) CreateToken(user *domain.User) (string, error) {
 
 func (p PasetoToken) VerifyToken(token string) (*domain.TokenPayload, error) {
 	var payload *domain.TokenPayload
+
+	token = strings.ReplaceAll(token, "Bearer ", "")
 
 	parsedToken, err := p.parser.ParseV4Local(*p.key, token, nil)
 	if err != nil {

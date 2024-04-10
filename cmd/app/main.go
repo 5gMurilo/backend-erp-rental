@@ -12,13 +12,13 @@ import (
 )
 
 func main() {
-	ctx := context.TODO()
-	worker, err := db.InitDb(ctx)
+	token, err := Auth.New()
 	if err != nil {
 		panic(err)
 	}
 
-	token, err := Auth.New()
+	ctx := context.TODO()
+	worker, err := db.InitDb(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +31,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
-	router := http.Router(userHandler, authHandler, authMiddleware)
+	router := http.Router(token, userHandler, authHandler, authMiddleware)
 
 	err = router.Run(":8080")
 	if err != nil {

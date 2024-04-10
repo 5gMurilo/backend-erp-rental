@@ -28,7 +28,7 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, err := ah.svc.Login(ctx, req.Email, req.Password)
+	authResponse, err := ah.svc.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": err,
@@ -37,7 +37,7 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"success": map[string]interface{}{"token": token, "userType": token},
+		"success": authResponse,
 	})
 
 }
