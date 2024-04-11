@@ -27,11 +27,15 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	userActivitiesRepo := repository.NewEmployeeActivityLog(worker)
+	userActivitiesService := service.NewEmployeeActivityLogService(userActivitiesRepo)
+	userActivitiesHandler := handler.NewEmployeeActivityLogHandler(userActivitiesService)
+
 	authService := service.NewAuthService(userRepo, token)
 	authHandler := handler.NewAuthHandler(authService)
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
-	router := http.Router(token, userHandler, authHandler, authMiddleware)
+	router := http.Router(userHandler, authHandler, authMiddleware, userActivitiesHandler)
 
 	err = router.Run(":8080")
 	if err != nil {

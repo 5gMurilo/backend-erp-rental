@@ -140,6 +140,7 @@ func (u UserHandler) Delete(g *gin.Context) {
 		})
 		return
 	}
+
 	err = u.service.Delete(g, objId)
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
@@ -147,6 +148,7 @@ func (u UserHandler) Delete(g *gin.Context) {
 		})
 		return
 	}
+
 	g.JSON(http.StatusOK, gin.H{
 		"sucesso": "usuário deletado com sucesso!",
 	})

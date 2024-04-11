@@ -3,11 +3,10 @@ package http
 import (
 	"america-rental-backend/internal/adapter/http/handler"
 	"america-rental-backend/internal/adapter/http/middleware"
-	"america-rental-backend/internal/core/ports"
 	"github.com/gin-gonic/gin"
 )
 
-func Router(token ports.TokenService, userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware) *gin.Engine {
+func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware, activitiesHandler handler.EmployeeActivityLogHandler) *gin.Engine {
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -24,6 +23,11 @@ func Router(token ports.TokenService, userHandler handler.UserHandler, authHandl
 				authUser.PUT("/update/:id", userHandler.Update)
 				authUser.DELETE("/delete/:id", userHandler.Delete)
 			}
+		}
+
+		employeeRoutes := api.Group("/employees").Use(middleware.AuthenticationMiddleware)
+		{
+			employeeRoutes.GET("/activities", activitiesHandler.Get)
 		}
 	}
 
