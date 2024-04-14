@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware, activitiesHandler handler.EmployeeActivityLogHandler) *gin.Engine {
+func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware, activitiesHandler handler.EmployeeActivityLogHandler, storageHandler handler.StorageHandler) *gin.Engine {
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -28,6 +28,12 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 		employeeRoutes := api.Group("/employees").Use(middleware.AuthenticationMiddleware)
 		{
 			employeeRoutes.GET("/activities", activitiesHandler.Get)
+		}
+
+		onedriveRoutes := api.Group("/onedrive").Use(middleware.AuthenticationMiddleware)
+		{
+			onedriveRoutes.PUT("/new", storageHandler.Create)
+			onedriveRoutes.GET("/all", storageHandler.List)
 		}
 	}
 
