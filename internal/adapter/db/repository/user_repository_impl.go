@@ -7,19 +7,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 type UserRepositoryImpl struct {
 	worker *db.ManagerWorker
 }
-
-const (
-	collection string = "user"
-)
 
 func NewUserRepositoryImpl(worker *db.ManagerWorker) ports.UserRepository {
 	return &UserRepositoryImpl{
@@ -29,7 +26,7 @@ func NewUserRepositoryImpl(worker *db.ManagerWorker) ports.UserRepository {
 
 func (u UserRepositoryImpl) Get(c context.Context, id primitive.ObjectID) (*domain.User, error) {
 	var result *domain.User
-	err := u.worker.GetCollection(collection).FindOne(c, bson.M{"_id": id}).Decode(&result)
+	err := u.worker.GetCollection("user").FindOne(c, bson.M{"_id": id}).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +36,7 @@ func (u UserRepositoryImpl) Get(c context.Context, id primitive.ObjectID) (*doma
 
 func (u UserRepositoryImpl) GetByEmail(c context.Context, email string) (*domain.User, error) {
 	var result *domain.User
-	err := u.worker.GetCollection(collection).FindOne(c, bson.M{"email": email}).Decode(&result)
+	err := u.worker.GetCollection("user").FindOne(c, bson.M{"email": email}).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +46,7 @@ func (u UserRepositoryImpl) GetByEmail(c context.Context, email string) (*domain
 func (u UserRepositoryImpl) GetAll(c context.Context) (*[]domain.User, error) {
 	var rst []domain.User
 
-	cursor, err := u.worker.GetCollection(collection).Find(c, bson.M{})
+	cursor, err := u.worker.GetCollection("user").Find(c, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +81,7 @@ func (u UserRepositoryImpl) Create(c context.Context, data domain.User) (*primit
 		UpdatedBy: "Me",
 	}
 
-	rst, err := u.worker.GetCollection(collection).InsertOne(c, newUser)
+	rst, err := u.worker.GetCollection("user").InsertOne(c, newUser)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -111,7 +108,7 @@ func (u UserRepositoryImpl) Update(c context.Context, data domain.User, id primi
 		UpdatedBy: "me",
 	}
 
-	rst, err := u.worker.GetCollection(collection).UpdateOne(c, bson.M{"_id": id}, bson.M{"$set": newData})
+	rst, err := u.worker.GetCollection("user").UpdateOne(c, bson.M{"_id": id}, bson.M{"$set": newData})
 	if err != nil {
 		fmt.Printf("repository %e", err)
 		return nil, err
@@ -125,7 +122,7 @@ func (u UserRepositoryImpl) Update(c context.Context, data domain.User, id primi
 }
 
 func (u UserRepositoryImpl) Delete(c context.Context, id primitive.ObjectID) error {
-	_, err := u.worker.GetCollection(collection).DeleteOne(c, bson.M{"_id": id})
+	_, err := u.worker.GetCollection("user").DeleteOne(c, bson.M{"_id": id})
 	if err != nil {
 		return err
 	}

@@ -26,9 +26,12 @@ type JsonGraphSdkResponse struct {
 	OdataNextLink      string `json:"@odata.nextLink"`
 	MicrosoftGraphTips string `json:"@microsoft.graph.tips"`
 	Value              []struct {
-		Id     string `json:"id"`
+		ID     string `json:"id"`
 		Name   string `json:"name"`
 		WebURL string `json:"webUrl"`
+		Folder struct {
+			ChildCount int `json:"childCount"`
+		} `json:"folder,omitempty"`
 	} `json:"value"`
 }
 
@@ -52,7 +55,7 @@ func (s StorageService) GetDriveItemId(employeeName string) (string, error) {
 		}
 	}
 
-	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me/drive/root/search(q='"+employeeName+"')?select=name,id,webUrl", nil)
+	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me/drive/root/search(q='"+employeeName+"')?select=name,id,webUrl,folder", nil)
 	if err != nil {
 		return "", err
 	}
@@ -78,9 +81,8 @@ func (s StorageService) GetDriveItemId(employeeName string) (string, error) {
 
 	var driveItemId string
 	for _, v := range j.Value {
-		sysUrl := strings.Contains(v.WebURL, "/sistema/")
-		if sysUrl {
-			driveItemId = v.Id
+		if v.Folder.ChildCount == 0 && strings.Contains(v.WebURL, "/sistema/") {
+			driveItemId = v.ID
 			break
 		}
 	}
