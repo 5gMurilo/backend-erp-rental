@@ -25,6 +25,7 @@ func (mw *ManagerWorker) GetCollection(collectionName string) *mongo.Collection 
 
 func (mw *ManagerWorker) StartSession() (mongo.Session, error) {
 	if session, err := mw.client.StartSession(); err != nil {
+		log.Println(err)
 		return nil, err
 	} else {
 		return session, nil

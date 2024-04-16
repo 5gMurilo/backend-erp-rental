@@ -2,9 +2,10 @@ package middleware
 
 import (
 	"america-rental-backend/internal/core/ports"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthMiddleware struct {
@@ -26,13 +27,15 @@ func (as AuthMiddleware) AuthenticationMiddleware(g *gin.Context) {
 		return
 	}
 
-	_, err := as.service.VerifyToken(strings.ReplaceAll(token, "Bearer ", ""))
+	payload, err := as.service.VerifyToken(strings.ReplaceAll(token, "Bearer ", ""))
 	if err != nil {
 		g.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "Token inválido",
 		})
 		return
 	}
+
+	g.Set("requestOwner", payload.Name)
 
 	g.Next()
 }

@@ -17,10 +17,10 @@ type EmployeeRepository interface {
 }
 
 type EmployeeService interface {
-	New(ctx context.Context, employee domain.Employee) (primitive.ObjectID, error)
+	New(ctx context.Context, employee domain.Employee, createdBy string) (*domain.Employee, error)
 	GetAll(ctx context.Context) ([]*domain.Employee, error)
 	GetById(ctx context.Context, id primitive.ObjectID) (*domain.Employee, error)
 	GetByCPF(ctx context.Context, cpf string) (*domain.Employee, error)
-	Update(ctx context.Context, id primitive.ObjectID, newData domain.Employee) (*domain.Employee, error)
+	Update(ctx context.Context, id primitive.ObjectID, newData domain.Employee, updatedBy string) (*domain.Employee, error)
 	Delete(ctx context.Context, id primitive.ObjectID) error
 }

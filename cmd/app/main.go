@@ -28,9 +28,13 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
-	userActivitiesRepo := repository.NewEmployeeActivityLog(worker)
-	userActivitiesService := service.NewEmployeeActivityLogService(userActivitiesRepo)
-	userActivitiesHandler := handler.NewEmployeeActivityLogHandler(userActivitiesService)
+	employeeActivitiesRepo := repository.NewEmployeeActivityLog(worker)
+	employeeActivitiesService := service.NewEmployeeActivityLogService(employeeActivitiesRepo)
+	employeeActivitiesHandler := handler.NewEmployeeActivityLogHandler(employeeActivitiesService)
+
+	employeeRepo := repository.NewEmployeeRepositoryImpl(worker)
+	employeeService := service.NewEmployeeService(employeeRepo)
+	employeeHandler := handler.NewEmployeeHandler(employeeService)
 
 	authService := service.NewAuthService(userRepo, token)
 	authHandler := handler.NewAuthHandler(authService)
@@ -45,7 +49,7 @@ func main() {
 	})
 	storageHandler := handler.NewStorageHandler(storageService)
 
-	router := http.Router(userHandler, authHandler, authMiddleware, userActivitiesHandler, storageHandler)
+	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler)
 
 	err = router.Run(":8080")
 	if err != nil {

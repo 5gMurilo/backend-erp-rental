@@ -14,10 +14,10 @@ import (
 )
 
 type EmployeeRepositoryImpl struct {
-	db db.ManagerWorker
+	db *db.ManagerWorker
 }
 
-func NewEmployeeRepositoryImpl(db db.ManagerWorker) ports.EmployeeRepository {
+func NewEmployeeRepositoryImpl(db *db.ManagerWorker) ports.EmployeeRepository {
 	return &EmployeeRepositoryImpl{db}
 }
 
@@ -28,7 +28,19 @@ func (e *EmployeeRepositoryImpl) Delete(ctx context.Context, id primitive.Object
 
 // GetAll implements ports.EmployeeRepository.
 func (e *EmployeeRepositoryImpl) GetAll(ctx context.Context) ([]*domain.Employee, error) {
-	panic("unimplemented")
+	var employees []*domain.Employee
+
+	rst, err := e.db.GetCollection("employee").Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = rst.All(ctx, &employees)
+	if err != nil {
+		return nil, err
+	}
+
+	return employees, nil
 }
 
 // GetByCPF implements ports.EmployeeRepository.
@@ -73,18 +85,24 @@ func (e *EmployeeRepositoryImpl) New(ctx context.Context, employee domain.Employ
 		return nil, errors.New("colaborador já existente")
 	}
 
+	err = session.StartTransaction()
+	if err != nil {
+		return nil, err
+	}
+
 	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 		rst, err := e.db.GetCollection("employee").InsertOne(ctx, employee)
 		if err != nil {
 			session.AbortTransaction(sc)
 			return err
 		}
+
 		if rst.InsertedID == nil {
 			session.AbortTransaction(sc)
 			return errors.New("erro ao concluir operação de insert")
 		}
 
-		if err := session.CommitTransaction(sc); err != nil {
+		if err = session.CommitTransaction(sc); err != nil {
 			return err
 		}
 
