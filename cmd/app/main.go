@@ -34,7 +34,7 @@ func main() {
 
 	employeeRepo := repository.NewEmployeeRepositoryImpl(worker)
 	employeeService := service.NewEmployeeService(employeeRepo)
-	employeeHandler := handler.NewEmployeeHandler(employeeService)
+	employeeHandler := handler.NewEmployeeHandler(employeeActivitiesService, employeeService)
 
 	authService := service.NewAuthService(userRepo, token)
 	authHandler := handler.NewAuthHandler(authService)

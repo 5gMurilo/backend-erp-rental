@@ -64,13 +64,13 @@ func (e EmployeeService) New(ctx context.Context, employee domain.Employee, crea
 
 	id, err := e.repo.New(ctx, employee)
 	if err != nil {
-		fmt.Printf("service error 66 \n%e\n", err)
+		fmt.Printf("service error 66 \n%s\n", err.Error())
 		return nil, err
 	}
 
 	pId, err := primitive.ObjectIDFromHex(id.Hex())
 	if err != nil {
-		fmt.Printf("service error 72 \n%e\n", err)
+		fmt.Printf("service error 72 \n%s\n", err.Error())
 		return nil, err
 	}
 
@@ -78,7 +78,7 @@ func (e EmployeeService) New(ctx context.Context, employee domain.Employee, crea
 
 	emp, err := e.repo.GetById(ctx, pId)
 	if err != nil {
-		fmt.Printf("service error 78\n%e\n", err)
+		fmt.Printf("service error 78\n%s\n", err.Error())
 		return nil, err
 	}
 

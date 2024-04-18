@@ -2,8 +2,9 @@ package handler
 
 import (
 	"america-rental-backend/internal/core/ports"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
@@ -23,7 +24,7 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 	var req loginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -31,7 +32,7 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 	authResponse, err := ah.svc.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}

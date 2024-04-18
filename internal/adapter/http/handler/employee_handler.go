@@ -11,18 +11,19 @@ import (
 )
 
 type EmployeeHandler struct {
-	svc ports.EmployeeService
+	activityService ports.EmployeeActivityLogService
+	svc             ports.EmployeeService
 }
 
-func NewEmployeeHandler(svc ports.EmployeeService) EmployeeHandler {
-	return EmployeeHandler{svc}
+func NewEmployeeHandler(activityService ports.EmployeeActivityLogService, svc ports.EmployeeService) EmployeeHandler {
+	return EmployeeHandler{activityService, svc}
 }
 
 func (eh EmployeeHandler) GetAll(g *gin.Context) {
 	employees, err := eh.svc.GetAll(g)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -36,7 +37,7 @@ func (eh EmployeeHandler) GetById(g *gin.Context) {
 	id, err := primitive.ObjectIDFromHex(g.Param("id"))
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -44,7 +45,7 @@ func (eh EmployeeHandler) GetById(g *gin.Context) {
 	emp, err := eh.svc.GetById(g, id)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -61,7 +62,7 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 	if err != nil {
 		fmt.Printf("handler error \n%e", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"handler": map[string]interface{}{"error": err},
+			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
@@ -72,7 +73,7 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 	if err != nil {
 		fmt.Printf("handler error \n%e", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"handler": map[string]interface{}{"error": err},
+			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
@@ -85,13 +86,11 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 func (eh EmployeeHandler) Update(g *gin.Context) {
 	var data domain.Employee
 
-	fmt.Print("h")
-
 	err := g.ShouldBindJSON(&data)
 	if err != nil {
 		fmt.Printf("handler error \n%e", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"handler": map[string]interface{}{"error": err},
+			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
@@ -100,7 +99,7 @@ func (eh EmployeeHandler) Update(g *gin.Context) {
 	if err != nil {
 		fmt.Printf("handler error \n%e", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"handler": map[string]interface{}{"error": err},
+			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
@@ -109,7 +108,7 @@ func (eh EmployeeHandler) Update(g *gin.Context) {
 	if err != nil {
 		fmt.Printf("handler error \n%e", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"handler": map[string]interface{}{"error": err},
+			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}

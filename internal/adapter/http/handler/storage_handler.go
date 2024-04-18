@@ -2,8 +2,9 @@ package handler
 
 import (
 	"america-rental-backend/internal/core/ports"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type StorageHandler struct {
@@ -26,7 +27,7 @@ func (s StorageHandler) Create(g *gin.Context) {
 		_, err := s.svc.SendFile(file, g.PostForm("employee"))
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{
-				"erro": err,
+				"erro": err.Error(),
 			})
 			return
 		}
@@ -41,7 +42,7 @@ func (s StorageHandler) List(g *gin.Context) {
 	form, err := g.MultipartForm()
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"erro": err,
+			"erro": err.Error(),
 		})
 	}
 
@@ -50,7 +51,7 @@ func (s StorageHandler) List(g *gin.Context) {
 	files, err := s.svc.ListFiles(empname)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
-			"erro": err,
+			"erro": err.Error(),
 		})
 		return
 	}
