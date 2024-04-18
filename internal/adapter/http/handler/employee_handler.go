@@ -5,6 +5,7 @@ import (
 	"america-rental-backend/internal/core/ports"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,9 +29,7 @@ func (eh EmployeeHandler) GetAll(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, gin.H{
-		"result": &employees,
-	})
+	g.JSON(http.StatusOK, &employees)
 }
 
 func (eh EmployeeHandler) GetById(g *gin.Context) {
@@ -78,6 +77,13 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 		return
 	}
 
+	eh.activityService.New(g, domain.EmployeeActivityLog{
+		Activity: "Novo Colaborador",
+		Employee: *rst,
+		Actor:    g.GetString("requestOwner"),
+		At:       primitive.NewDateTimeFromTime(time.Now()),
+	})
+
 	g.JSON(http.StatusOK, gin.H{
 		"result": &rst,
 	})
@@ -86,18 +92,18 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 func (eh EmployeeHandler) Update(g *gin.Context) {
 	var data domain.Employee
 
-	err := g.ShouldBindJSON(&data)
+	oId, err := primitive.ObjectIDFromHex(g.Param("id"))
 	if err != nil {
-		fmt.Printf("handler error \n%e", err)
+		fmt.Printf("89 handler error \n%s\n", err.Error())
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
 
-	oId, err := primitive.ObjectIDFromHex(g.Param("id"))
+	err = g.ShouldBindJSON(&data)
 	if err != nil {
-		fmt.Printf("handler error \n%e", err)
+		fmt.Printf("98 handler error \n%s\n", err.Error())
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -106,14 +112,12 @@ func (eh EmployeeHandler) Update(g *gin.Context) {
 
 	newData, err := eh.svc.Update(g, oId, data, g.GetString("requestOwner"))
 	if err != nil {
-		fmt.Printf("handler error \n%e", err)
+		fmt.Printf("107 handler error \n%s\n", err.Error())
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
 		return
 	}
 
-	g.JSON(http.StatusOK, gin.H{
-		"result": &newData,
-	})
+	g.JSON(http.StatusOK, &newData)
 }

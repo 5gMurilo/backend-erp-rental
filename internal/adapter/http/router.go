@@ -7,7 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware, activitiesHandler handler.EmployeeActivityLogHandler, storageHandler handler.StorageHandler, employeeHandler handler.EmployeeHandler) *gin.Engine {
+func Router(
+	userHandler handler.UserHandler,
+	authHandler handler.AuthHandler,
+	middleware *middleware.AuthMiddleware,
+	activitiesHandler handler.EmployeeActivityLogHandler,
+	storageHandler handler.StorageHandler,
+	employeeHandler handler.EmployeeHandler,
+	epiHandler handler.EpiHandler,
+) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(func(ctx *gin.Context) {
@@ -43,9 +51,18 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 		{
 			employeeRoutes.GET("/:id", employeeHandler.GetById)
 			employeeRoutes.GET("/all", employeeHandler.GetAll)
-			employeeRoutes.GET("/activities", activitiesHandler.Get)
+			employeeRoutes.GET("/activities/:id", activitiesHandler.Get)
 			employeeRoutes.POST("/new", employeeHandler.New)
 			employeeRoutes.PUT("/update/:id", employeeHandler.Update)
+		}
+
+		epiRoutes := api.Group("/epi").Use(middleware.AuthenticationMiddleware)
+		{
+			epiRoutes.GET("/all", epiHandler.GetAll)
+			epiRoutes.GET("/:id", epiHandler.GetById)
+			epiRoutes.POST("/new", epiHandler.NewEpi)
+			epiRoutes.PUT("/update/:id", epiHandler.UpdateEpi)
+			epiRoutes.DELETE("/delete/:id", epiHandler.DeleteEpi)
 		}
 
 		onedriveRoutes := api.Group("/onedrive").Use(middleware.AuthenticationMiddleware)

@@ -25,19 +25,22 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepositoryImpl(worker)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
-
-	employeeActivitiesRepo := repository.NewEmployeeActivityLog(worker)
-	employeeActivitiesService := service.NewEmployeeActivityLogService(employeeActivitiesRepo)
-	employeeActivitiesHandler := handler.NewEmployeeActivityLogHandler(employeeActivitiesService)
-
 	employeeRepo := repository.NewEmployeeRepositoryImpl(worker)
-	employeeService := service.NewEmployeeService(employeeRepo)
-	employeeHandler := handler.NewEmployeeHandler(employeeActivitiesService, employeeService)
+	employeeActivitiesRepo := repository.NewEmployeeActivityLog(worker)
+	epiRepo := repository.NewEpiRepositoryImpl(worker)
 
 	authService := service.NewAuthService(userRepo, token)
+	userService := service.NewUserService(userRepo)
+	employeeService := service.NewEmployeeService(employeeRepo)
+	employeeActivitiesService := service.NewEmployeeActivityLogService(employeeActivitiesRepo, employeeRepo)
+	epiService := service.NewEpiService(epiRepo)
+
 	authHandler := handler.NewAuthHandler(authService)
+	userHandler := handler.NewUserHandler(userService)
+	employeeHandler := handler.NewEmployeeHandler(employeeActivitiesService, employeeService)
+	employeeActivitiesHandler := handler.NewEmployeeActivityLogHandler(employeeActivitiesService)
+	epiHandler := handler.NewEpiHandler(epiService)
+
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
 	storageService := service.NewStorageService(nil, domain.StorageAuthentication{
@@ -49,7 +52,7 @@ func main() {
 	})
 	storageHandler := handler.NewStorageHandler(storageService)
 
-	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler)
+	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler)
 
 	err = router.Run(":8080")
 	if err != nil {

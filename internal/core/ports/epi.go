@@ -18,7 +18,7 @@ type EpiRepository interface {
 type EpiService interface {
 	GetAll(ctx context.Context) ([]*domain.Epi, error)
 	GetEpi(ctx context.Context, id primitive.ObjectID) (*domain.Epi, error)
-	NewEpi(ctx context.Context, epi domain.Epi) (*primitive.ObjectID, error)
+	NewEpi(ctx context.Context, epi domain.Epi) (*domain.Epi, error)
 	UpdateEpi(ctx context.Context, id primitive.ObjectID, epi domain.Epi) (*domain.Epi, error)
 	DeleteEpi(ctx context.Context, id primitive.ObjectID) error
 }

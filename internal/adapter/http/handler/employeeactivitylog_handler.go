@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type EmployeeActivityLogHandler struct {
@@ -16,16 +16,9 @@ func NewEmployeeActivityLogHandler(svc ports.EmployeeActivityLogService) Employe
 }
 
 func (h EmployeeActivityLogHandler) Get(g *gin.Context) {
-	var empl domain.Employee
+	id := g.Param("id")
 
-	if err := g.ShouldBindJSON(&empl); err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	activities, err := h.svc.GetByEmployee(g, empl)
+	activities, err := h.svc.GetByEmployee(g, id)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

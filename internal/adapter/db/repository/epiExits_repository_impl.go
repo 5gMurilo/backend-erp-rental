@@ -14,10 +14,10 @@ import (
 )
 
 type EpiExitsRepositoryImpl struct {
-	db db.ManagerWorker
+	db *db.ManagerWorker
 }
 
-func NewEpiExitsRepositoryImpl(db db.ManagerWorker) ports.EpiExitsRepository {
+func NewEpiExitsRepositoryImpl(db *db.ManagerWorker) ports.EpiExitsRepository {
 	return &EpiExitsRepositoryImpl{db}
 }
 
@@ -36,6 +36,17 @@ func (e *EpiExitsRepositoryImpl) GetExits(ctx context.Context) ([]*domain.EpiExi
 	}
 
 	return exits, nil
+}
+
+func (e *EpiExitsRepositoryImpl) GetExitById(ctx context.Context, id primitive.ObjectID) (*domain.EpiExits, error) {
+	var exit *domain.EpiExits
+
+	err := e.db.GetCollection("epiExits").FindOne(ctx, bson.M{"_id": id}).Decode(&exit)
+	if err != nil {
+		return nil, err
+	}
+
+	return exit, nil
 }
 
 // newExit implements ports.EpiExitsRepository.

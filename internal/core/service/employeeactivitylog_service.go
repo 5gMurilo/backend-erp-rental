@@ -4,20 +4,36 @@ import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
 	"context"
+	"fmt"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type EmployeeActivityLogService struct {
-	repo ports.EmployeeActivityLogRepository
+	repo     ports.EmployeeActivityLogRepository
+	emplRepo ports.EmployeeRepository
 }
 
-func NewEmployeeActivityLogService(repo ports.EmployeeActivityLogRepository) ports.EmployeeActivityLogService {
-	return &EmployeeActivityLogService{repo}
+func NewEmployeeActivityLogService(repo ports.EmployeeActivityLogRepository, emplRepo ports.EmployeeRepository) ports.EmployeeActivityLogService {
+	return &EmployeeActivityLogService{repo, emplRepo}
 }
 
-func (e EmployeeActivityLogService) GetByEmployee(ctx context.Context, employee domain.Employee) ([]*domain.EmployeeActivityLog, error) {
-	activities, err := e.repo.GetByEmployee(ctx, employee)
+func (e EmployeeActivityLogService) GetByEmployee(ctx context.Context, id string) ([]*domain.EmployeeActivityLog, error) {
+	employeeId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		fmt.Printf("24 Log - Service - error: %s\n", err.Error())
+		return nil, err
+	}
+
+	emp, err := e.emplRepo.GetById(ctx, employeeId)
+	if err != nil {
+		fmt.Printf("30 Log - Service - error: %s\n", err.Error())
+		return nil, err
+	}
+
+	activities, err := e.repo.GetByEmployee(ctx, *emp)
+	if err != nil {
+		fmt.Printf("36 Log - Service - error: %s\n", err.Error())
 		return nil, err
 	}
 

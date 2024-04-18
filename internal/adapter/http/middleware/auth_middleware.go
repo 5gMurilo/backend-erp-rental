@@ -36,6 +36,7 @@ func (as AuthMiddleware) AuthenticationMiddleware(g *gin.Context) {
 	}
 
 	g.Set("requestOwner", payload.Name)
+	g.Set("userType", payload.UserType)
 
 	g.Next()
 }

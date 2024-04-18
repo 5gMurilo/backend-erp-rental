@@ -14,15 +14,15 @@ import (
 )
 
 type EpiRepositoryImpl struct {
-	db db.ManagerWorker
+	db *db.ManagerWorker
 }
 
-func NewEpiRepositoryImpl(db db.ManagerWorker) ports.EpiRepository {
+func NewEpiRepositoryImpl(db *db.ManagerWorker) ports.EpiRepository {
 	return &EpiRepositoryImpl{db}
 }
 
 // GetAll implements ports.EpiRepository.
-func (e *EpiRepositoryImpl) GetAll(ctx context.Context) ([]*domain.Epi, error) {
+func (e EpiRepositoryImpl) GetAll(ctx context.Context) ([]*domain.Epi, error) {
 	var rst []*domain.Epi
 
 	csr, err := e.db.GetCollection("epi").Find(ctx, bson.M{})
@@ -39,7 +39,7 @@ func (e *EpiRepositoryImpl) GetAll(ctx context.Context) ([]*domain.Epi, error) {
 }
 
 // GetEpi implements ports.EpiRepository.
-func (e *EpiRepositoryImpl) GetEpi(ctx context.Context, id primitive.ObjectID) (*domain.Epi, error) {
+func (e EpiRepositoryImpl) GetEpi(ctx context.Context, id primitive.ObjectID) (*domain.Epi, error) {
 	var epi *domain.Epi
 
 	err := e.db.GetCollection("epi").FindOne(ctx, bson.M{"_id": id}).Decode(&epi)
@@ -51,7 +51,7 @@ func (e *EpiRepositoryImpl) GetEpi(ctx context.Context, id primitive.ObjectID) (
 }
 
 // NewEpi implements ports.EpiRepository.
-func (e *EpiRepositoryImpl) NewEpi(ctx context.Context, epi domain.Epi) (*primitive.ObjectID, error) {
+func (e EpiRepositoryImpl) NewEpi(ctx context.Context, epi domain.Epi) (*primitive.ObjectID, error) {
 	var session mongo.Session
 	var oId *primitive.ObjectID
 	session, err := e.db.StartSession()
@@ -88,8 +88,9 @@ func (e *EpiRepositoryImpl) NewEpi(ctx context.Context, epi domain.Epi) (*primit
 }
 
 // UpdateEpi implements ports.EpiRepository.
-func (e *EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID, epi domain.Epi) (*domain.Epi, error) {
+func (e EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID, epi domain.Epi) (*domain.Epi, error) {
 	var session mongo.Session
+	var updatedEpi *domain.Epi
 
 	session, err := e.db.StartSession()
 	if err != nil {
@@ -107,13 +108,13 @@ func (e *EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID
 	}
 
 	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
-		rst, err := e.db.GetCollection("").UpdateOne(sc, bson.M{"_id": id}, bson.M{"_set": newData})
+		err = e.db.GetCollection("").FindOneAndUpdate(sc, bson.M{"_id": id}, newData).Decode(&updatedEpi)
 		if err != nil {
 			fmt.Printf("repository %e", err)
 			return err
 		}
 
-		if rst.MatchedCount == 0 {
+		if updatedEpi == nil {
 			if err = session.AbortTransaction(sc); err != nil {
 				return err
 			}
@@ -134,7 +135,7 @@ func (e *EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID
 }
 
 // DeleteEpi implements ports.EpiRepository.
-func (e *EpiRepositoryImpl) DeleteEpi(ctx context.Context, id primitive.ObjectID) error {
+func (e EpiRepositoryImpl) DeleteEpi(ctx context.Context, id primitive.ObjectID) error {
 	session, err := e.db.StartSession()
 	if err != nil {
 		return err

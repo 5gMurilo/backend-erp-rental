@@ -184,7 +184,7 @@ func (e *EmployeeRepositoryImpl) Update(ctx context.Context, id primitive.Object
 	}
 
 	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
-		err = e.db.GetCollection("employee").FindOneAndReplace(ctx, bson.M{"_id": id}, bson.M{"_set": data}).Decode(&data)
+		err = e.db.GetCollection("employee").FindOneAndReplace(ctx, bson.M{"_id": id}, data).Decode(&data)
 		if err != nil {
 			return err
 		}
