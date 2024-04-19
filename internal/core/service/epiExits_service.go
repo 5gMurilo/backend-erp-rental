@@ -31,5 +31,10 @@ func (e *EpiExitsService) NewExit(ctx context.Context, exit domain.EpiExits) (*d
 		return nil, err
 	}
 
-	return rst, nil
+	newExit, err := e.repo.GetExitById(ctx, *rst)
+	if err != nil {
+		return nil, err
+	}
+
+	return newExit, nil
 }

@@ -28,18 +28,21 @@ func main() {
 	employeeRepo := repository.NewEmployeeRepositoryImpl(worker)
 	employeeActivitiesRepo := repository.NewEmployeeActivityLog(worker)
 	epiRepo := repository.NewEpiRepositoryImpl(worker)
+	epiExitsRepo := repository.NewEpiExitsRepositoryImpl(worker)
 
 	authService := service.NewAuthService(userRepo, token)
 	userService := service.NewUserService(userRepo)
 	employeeService := service.NewEmployeeService(employeeRepo)
 	employeeActivitiesService := service.NewEmployeeActivityLogService(employeeActivitiesRepo, employeeRepo)
 	epiService := service.NewEpiService(epiRepo)
+	epiExitsService := service.NewEpiExitsService(epiExitsRepo)
 
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	employeeHandler := handler.NewEmployeeHandler(employeeActivitiesService, employeeService)
 	employeeActivitiesHandler := handler.NewEmployeeActivityLogHandler(employeeActivitiesService)
 	epiHandler := handler.NewEpiHandler(epiService)
+	epiExitsHandler := handler.NewEpiExitsHandler(epiExitsService)
 
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
@@ -52,7 +55,7 @@ func main() {
 	})
 	storageHandler := handler.NewStorageHandler(storageService)
 
-	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler)
+	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler, epiExitsHandler)
 
 	err = router.Run(":8080")
 	if err != nil {

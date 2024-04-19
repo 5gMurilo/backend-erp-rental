@@ -22,7 +22,7 @@ func NewEpiExitsRepositoryImpl(db *db.ManagerWorker) ports.EpiExitsRepository {
 }
 
 // getExits implements ports.EpiExitsRepository.
-func (e *EpiExitsRepositoryImpl) GetExits(ctx context.Context) ([]*domain.EpiExits, error) {
+func (e EpiExitsRepositoryImpl) GetExits(ctx context.Context) ([]*domain.EpiExits, error) {
 	var exits []*domain.EpiExits
 
 	csr, err := e.db.GetCollection("epiExits").Find(ctx, bson.M{})
@@ -38,7 +38,7 @@ func (e *EpiExitsRepositoryImpl) GetExits(ctx context.Context) ([]*domain.EpiExi
 	return exits, nil
 }
 
-func (e *EpiExitsRepositoryImpl) GetExitById(ctx context.Context, id primitive.ObjectID) (*domain.EpiExits, error) {
+func (e EpiExitsRepositoryImpl) GetExitById(ctx context.Context, id primitive.ObjectID) (*domain.EpiExits, error) {
 	var exit *domain.EpiExits
 
 	err := e.db.GetCollection("epiExits").FindOne(ctx, bson.M{"_id": id}).Decode(&exit)
@@ -50,7 +50,7 @@ func (e *EpiExitsRepositoryImpl) GetExitById(ctx context.Context, id primitive.O
 }
 
 // newExit implements ports.EpiExitsRepository.
-func (e *EpiExitsRepositoryImpl) NewExit(ctx context.Context, exit domain.EpiExits) (*primitive.ObjectID, error) {
+func (e EpiExitsRepositoryImpl) NewExit(ctx context.Context, exit domain.EpiExits) (*primitive.ObjectID, error) {
 	var session mongo.Session
 	session, err := e.db.StartSession()
 	if err != nil {

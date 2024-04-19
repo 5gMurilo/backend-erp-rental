@@ -15,6 +15,7 @@ func Router(
 	storageHandler handler.StorageHandler,
 	employeeHandler handler.EmployeeHandler,
 	epiHandler handler.EpiHandler,
+	epiExitsHandler handler.EpiExitsHandler,
 ) *gin.Engine {
 	r := gin.Default()
 
@@ -63,6 +64,12 @@ func Router(
 			epiRoutes.POST("/new", epiHandler.NewEpi)
 			epiRoutes.PUT("/update/:id", epiHandler.UpdateEpi)
 			epiRoutes.DELETE("/delete/:id", epiHandler.DeleteEpi)
+		}
+
+		epiExitsRoutes := api.Group("/exits").Use(middleware.AuthenticationMiddleware)
+		{
+			epiExitsRoutes.GET("/all", epiExitsHandler.GetAll)
+			epiExitsRoutes.POST("/new", epiExitsHandler.New)
 		}
 
 		onedriveRoutes := api.Group("/onedrive").Use(middleware.AuthenticationMiddleware)

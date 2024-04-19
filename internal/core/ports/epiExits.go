@@ -10,6 +10,7 @@ import (
 type EpiExitsRepository interface {
 	NewExit(ctx context.Context, exit domain.EpiExits) (*primitive.ObjectID, error)
 	GetExits(ctx context.Context) ([]*domain.EpiExits, error)
+	GetExitById(ctx context.Context, id primitive.ObjectID) (*domain.EpiExits, error)
 }
 
 type EpiExitsService interface {

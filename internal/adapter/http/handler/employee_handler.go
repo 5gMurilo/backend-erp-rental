@@ -77,12 +77,20 @@ func (eh EmployeeHandler) New(g *gin.Context) {
 		return
 	}
 
-	eh.activityService.New(g, domain.EmployeeActivityLog{
+	_, err = eh.activityService.New(g, domain.EmployeeActivityLog{
 		Activity: "Novo Colaborador",
 		Employee: *rst,
 		Actor:    g.GetString("requestOwner"),
 		At:       primitive.NewDateTimeFromTime(time.Now()),
 	})
+
+	if err != nil {
+		fmt.Printf("handler error \n%e", err)
+		g.JSON(http.StatusInternalServerError, gin.H{
+			"handler": map[string]interface{}{"error": err.Error()},
+		})
+		return
+	}
 
 	g.JSON(http.StatusOK, gin.H{
 		"result": &rst,
@@ -112,7 +120,24 @@ func (eh EmployeeHandler) Update(g *gin.Context) {
 
 	newData, err := eh.svc.Update(g, oId, data, g.GetString("requestOwner"))
 	if err != nil {
-		fmt.Printf("107 handler error \n%s\n", err.Error())
+		fmt.Printf("131 handler error \n%s\n", err.Error())
+		g.JSON(http.StatusInternalServerError, gin.H{
+			"handler": map[string]interface{}{"error": err.Error()},
+		})
+		return
+	}
+
+	newActivity, err := eh.activityService.New(g, domain.EmployeeActivityLog{
+		Activity: "Alteração nos dados do colaborador",
+		Employee: *newData,
+		Actor:    g.GetString("requestOwner"),
+		At:       primitive.NewDateTimeFromTime(time.Now()),
+	})
+
+	fmt.Println(newActivity)
+
+	if err != nil {
+		fmt.Printf("145 handler error \n%s\n", err.Error())
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})

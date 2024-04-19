@@ -15,7 +15,7 @@ type EpiExitsHandler struct {
 	svc ports.EpiExitsService
 }
 
-func NewEpiExits(svc ports.EpiExitsService) EpiExitsHandler {
+func NewEpiExitsHandler(svc ports.EpiExitsService) EpiExitsHandler {
 	return EpiExitsHandler{svc}
 }
 

@@ -22,7 +22,7 @@ func NewEmployeeActivityLog(db *db.ManagerWorker) ports.EmployeeActivityLogRepos
 func (e EmployeeActivityLog) GetByEmployee(ctx context.Context, employee domain.Employee) ([]*domain.EmployeeActivityLog, error) {
 	var data []*domain.EmployeeActivityLog
 
-	rst, err := e.db.GetCollection("employeeActivityLog").Find(ctx, bson.M{"employee": employee})
+	rst, err := e.db.GetCollection("employeeActivityLog").Find(ctx, bson.M{"employee._id": employee.Id})
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +48,8 @@ func (e EmployeeActivityLog) GetById(ctx context.Context, id primitive.ObjectID)
 }
 
 func (e EmployeeActivityLog) New(ctx context.Context, activity domain.EmployeeActivityLog) (*primitive.ObjectID, error) {
+	activity.Id = primitive.NewObjectID()
+
 	rst, err := e.db.GetCollection("employeeActivityLog").InsertOne(ctx, activity)
 	if err != nil {
 		return nil, err

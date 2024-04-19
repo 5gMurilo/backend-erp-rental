@@ -32,12 +32,13 @@ func (e EmployeeActivityLogService) GetByEmployee(ctx context.Context, id string
 	}
 
 	activities, err := e.repo.GetByEmployee(ctx, *emp)
+	fmt.Println(activities)
 	if err != nil {
 		fmt.Printf("36 Log - Service - error: %s\n", err.Error())
 		return nil, err
 	}
 
-	return activities, err
+	return activities, nil
 }
 
 func (e EmployeeActivityLogService) New(ctx context.Context, activity domain.EmployeeActivityLog) (*domain.EmployeeActivityLog, error) {
