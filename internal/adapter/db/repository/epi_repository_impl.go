@@ -52,37 +52,41 @@ func (e EpiRepositoryImpl) GetEpi(ctx context.Context, id primitive.ObjectID) (*
 
 // NewEpi implements ports.EpiRepository.
 func (e EpiRepositoryImpl) NewEpi(ctx context.Context, epi domain.Epi) (*primitive.ObjectID, error) {
-	var session mongo.Session
+
 	var oId *primitive.ObjectID
 	session, err := e.db.StartSession()
 	if err != nil {
+		fmt.Printf("59 repo %e\n", err)
 		return nil, err
 	}
+	defer session.EndSession(ctx)
 
-	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
+	_, err = session.WithTransaction(ctx, func(sc mongo.SessionContext) (interface{}, error) {
 		epi.Id = primitive.NewObjectID()
 
-		rst, err := e.db.GetCollection("epi").InsertOne(sc, epi)
+		rst, err := sc.Client().Database("america").Collection("epi").InsertOne(ctx, epi)
 		if err != nil {
-			return err
+			sc.AbortTransaction(ctx)
+			fmt.Printf("69 repo %s\n", err.Error())
+			return nil, err
 		}
 
-		if err = session.CommitTransaction(sc); err != nil {
-			return err
+		if err = sc.CommitTransaction(ctx); err != nil {
+			fmt.Printf("74 repo %e\n", err)
+			return nil, err
 		}
 
 		if rstId, ok := rst.InsertedID.(primitive.ObjectID); ok {
 			oId = &rstId
-			return nil
+			return oId, nil
 		} else {
-			return errors.New("erro ao converter mongo.insertOneResult em ObjectId")
+			return nil, errors.New("erro ao converter mongo.insertOneResult em ObjectId")
 		}
 	})
 	if err != nil {
+		fmt.Printf("repo %e\n", err)
 		return nil, err
 	}
-
-	session.EndSession(ctx)
 
 	return oId, err
 }
@@ -96,6 +100,7 @@ func (e EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID,
 	if err != nil {
 		return nil, err
 	}
+	defer session.EndSession(ctx)
 
 	newData := domain.Epi{
 		Id:           id,
@@ -107,25 +112,25 @@ func (e EpiRepositoryImpl) UpdateEpi(ctx context.Context, id primitive.ObjectID,
 		IsReturnable: epi.IsReturnable,
 	}
 
-	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
-		err = e.db.GetCollection("").FindOneAndUpdate(sc, bson.M{"_id": id}, newData).Decode(&updatedEpi)
+	_, err = session.WithTransaction(ctx, func(sc mongo.SessionContext) (interface{}, error) {
+		err = session.Client().Database("america").Collection("epi").FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": &newData}).Decode(&updatedEpi)
 		if err != nil {
 			fmt.Printf("repository %e", err)
-			return err
+			return nil, err
 		}
 
 		if updatedEpi == nil {
-			if err = session.AbortTransaction(sc); err != nil {
-				return err
+			if err = session.AbortTransaction(ctx); err != nil {
+				return nil, err
 			}
-			return errors.New("update operation failed")
+			return nil, errors.New("update operation failed")
 		}
 
-		if err = session.CommitTransaction(sc); err != nil {
-			return err
+		if err = session.CommitTransaction(ctx); err != nil {
+			return nil, err
 		}
 
-		return nil
+		return nil, nil
 	})
 	if err != nil {
 		return nil, err
@@ -140,6 +145,7 @@ func (e EpiRepositoryImpl) DeleteEpi(ctx context.Context, id primitive.ObjectID)
 	if err != nil {
 		return err
 	}
+	defer session.EndSession(ctx)
 
 	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
 		rst := e.db.GetCollection("epi").FindOneAndDelete(sc, bson.M{"_id": id})

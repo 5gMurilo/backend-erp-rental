@@ -68,7 +68,7 @@ func (e EpiHandler) NewEpi(g *gin.Context) {
 
 	err := g.ShouldBindJSON(&body)
 	if err != nil {
-		fmt.Printf("71 handler error \n%e", err)
+		fmt.Printf("71 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -77,7 +77,7 @@ func (e EpiHandler) NewEpi(g *gin.Context) {
 
 	rst, err := e.svc.NewEpi(g, body)
 	if err != nil {
-		fmt.Printf("80 handler error \n%e", err)
+		fmt.Printf("80 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -101,7 +101,7 @@ func (e EpiHandler) DeleteEpi(g *gin.Context) {
 
 	id, err := primitive.ObjectIDFromHex(param)
 	if err != nil {
-		fmt.Printf("104 handler error \n%e", err)
+		fmt.Printf("104 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -110,7 +110,7 @@ func (e EpiHandler) DeleteEpi(g *gin.Context) {
 
 	err = e.svc.DeleteEpi(g, id)
 	if err != nil {
-		fmt.Printf("113 handler error \n%e", err)
+		fmt.Printf("113 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -132,7 +132,7 @@ func (e EpiHandler) UpdateEpi(g *gin.Context) {
 	var body domain.Epi
 	err := g.ShouldBindJSON(&body)
 	if err != nil {
-		fmt.Printf("135 handler error \n%e", err)
+		fmt.Printf("135 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -143,7 +143,7 @@ func (e EpiHandler) UpdateEpi(g *gin.Context) {
 
 	id, err := primitive.ObjectIDFromHex(param)
 	if err != nil {
-		fmt.Printf("146 handler error \n%e", err)
+		fmt.Printf("146 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})
@@ -152,7 +152,7 @@ func (e EpiHandler) UpdateEpi(g *gin.Context) {
 
 	rst, err := e.svc.UpdateEpi(g, id, body)
 	if err != nil {
-		fmt.Printf("156 handler error \n%e", err)
+		fmt.Printf("156 handler error \n%e\n", err)
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"handler": map[string]interface{}{"error": err.Error()},
 		})

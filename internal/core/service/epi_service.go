@@ -4,6 +4,7 @@ import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -50,6 +51,7 @@ func (e *EpiService) GetEpi(ctx context.Context, id primitive.ObjectID) (*domain
 func (e *EpiService) NewEpi(ctx context.Context, epi domain.Epi) (*domain.Epi, error) {
 	rst, err := e.repo.NewEpi(ctx, epi)
 	if err != nil {
+		fmt.Printf("service %e\n", err)
 		return nil, err
 	}
 

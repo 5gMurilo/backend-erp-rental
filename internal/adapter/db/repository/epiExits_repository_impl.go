@@ -51,7 +51,6 @@ func (e EpiExitsRepositoryImpl) GetExitById(ctx context.Context, id primitive.Ob
 
 // newExit implements ports.EpiExitsRepository.
 func (e EpiExitsRepositoryImpl) NewExit(ctx context.Context, exit domain.EpiExits) (*primitive.ObjectID, error) {
-	var session mongo.Session
 	session, err := e.db.StartSession()
 	if err != nil {
 		return nil, err
