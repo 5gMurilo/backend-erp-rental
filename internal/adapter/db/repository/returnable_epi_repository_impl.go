@@ -13,10 +13,10 @@ import (
 )
 
 type ReturnableEpiRepository struct {
-	db db.ManagerWorker
+	db *db.ManagerWorker
 }
 
-func NewReturnableEpiRepositoryImpl(db db.ManagerWorker) ports.ReturnableEpiRepository {
+func NewReturnableEpiRepositoryImpl(db *db.ManagerWorker) ports.ReturnableEpiRepository {
 	return ReturnableEpiRepository{db}
 }
 

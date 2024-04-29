@@ -7,16 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Router(
-	userHandler handler.UserHandler,
-	authHandler handler.AuthHandler,
-	middleware *middleware.AuthMiddleware,
-	activitiesHandler handler.EmployeeActivityLogHandler,
-	storageHandler handler.StorageHandler,
-	employeeHandler handler.EmployeeHandler,
-	epiHandler handler.EpiHandler,
-	epiExitsHandler handler.EpiExitsHandler,
-) *gin.Engine {
+func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, middleware *middleware.AuthMiddleware, activitiesHandler handler.EmployeeActivityLogHandler, storageHandler handler.StorageHandler, employeeHandler handler.EmployeeHandler, epiHandler handler.EpiHandler, epiExitsHandler handler.EpiExitsHandler, returnableEpiHandler handler.ReturnableEpiHandler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(func(ctx *gin.Context) {
@@ -64,6 +55,15 @@ func Router(
 			epiRoutes.POST("/new", epiHandler.NewEpi)
 			epiRoutes.PUT("/update/:id", epiHandler.UpdateEpi)
 			epiRoutes.DELETE("/delete/:id", epiHandler.DeleteEpi)
+		}
+
+		returnableEpiRoutes := api.Group("/returnable_epi").Use(middleware.AuthenticationMiddleware)
+		{
+			returnableEpiRoutes.GET("/all", returnableEpiHandler.GetAll)
+			returnableEpiRoutes.GET("/:id", returnableEpiHandler.Get)
+			returnableEpiRoutes.POST("/new", returnableEpiHandler.Create)
+			returnableEpiRoutes.PUT("/update/:id", returnableEpiHandler.Update)
+			returnableEpiRoutes.DELETE("/delete/:id", returnableEpiHandler.Delete)
 		}
 
 		epiExitsRoutes := api.Group("/exits").Use(middleware.AuthenticationMiddleware)
