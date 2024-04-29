@@ -46,9 +46,9 @@ func (s StorageHandler) List(g *gin.Context) {
 		})
 	}
 
-	empname := form.Value["employee"][0]
+	empName := form.Value["employee"][0]
 
-	files, err := s.svc.ListFiles(empname)
+	files, err := s.svc.ListFiles(empName)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"erro": err.Error(),

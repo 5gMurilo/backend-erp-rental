@@ -28,6 +28,7 @@ func main() {
 	employeeRepo := repository.NewEmployeeRepositoryImpl(worker)
 	employeeActivitiesRepo := repository.NewEmployeeActivityLog(worker)
 	epiRepo := repository.NewEpiRepositoryImpl(worker)
+	returnableEpiRepo := repository.NewReturnableEpiRepositoryImpl(worker)
 	epiExitsRepo := repository.NewEpiExitsRepositoryImpl(worker)
 
 	authService := service.NewAuthService(userRepo, token)
@@ -35,6 +36,7 @@ func main() {
 	employeeService := service.NewEmployeeService(employeeRepo)
 	employeeActivitiesService := service.NewEmployeeActivityLogService(employeeActivitiesRepo, employeeRepo)
 	epiService := service.NewEpiService(epiRepo)
+	returnableEpiService := service.NewReturnableEpiService(returnableEpiRepo, epiRepo)
 	epiExitsService := service.NewEpiExitsService(epiExitsRepo)
 
 	authHandler := handler.NewAuthHandler(authService)
@@ -43,6 +45,7 @@ func main() {
 	employeeActivitiesHandler := handler.NewEmployeeActivityLogHandler(employeeActivitiesService)
 	epiHandler := handler.NewEpiHandler(epiService)
 	epiExitsHandler := handler.NewEpiExitsHandler(epiExitsService)
+	returnableEpiHandler := handler.NewReturnableEpiHandler(returnableEpiService)
 
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
@@ -55,7 +58,7 @@ func main() {
 	})
 	storageHandler := handler.NewStorageHandler(storageService)
 
-	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler, epiExitsHandler)
+	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler, epiExitsHandler, returnableEpiHandler)
 
 	err = router.Run(":8080")
 	if err != nil {

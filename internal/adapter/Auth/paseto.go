@@ -47,6 +47,7 @@ func (p PasetoToken) CreateToken(user *domain.User) (string, error) {
 		Id:       id,
 		UserId:   user.Id,
 		Name:     user.Name,
+		Email:    user.Email,
 		UserType: user.UserType,
 	}
 

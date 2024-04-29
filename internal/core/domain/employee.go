@@ -68,8 +68,8 @@ type Employee struct {
 
 type Dependents struct {
 	DependentName string `json:"dependentName,omitempty" bson:"dependentName,omitempty" binding:"required"`
-	DependentRG   string `json:"dependentRg,omitempty" bson:"dependentName,omitempty" binding:"required"`
-	DependentCPF  string `json:"dependentCpf,omitempty" bson:"dependentName,omitempty" binding:"required"`
+	DependentRG   string `json:"dependentRg,omitempty" bson:"dependentRg,omitempty" binding:"required"`
+	DependentCPF  string `json:"dependentCpf,omitempty" bson:"dependentCpf,omitempty" binding:"required"`
 }
 
 type Spouse struct {
