@@ -24,7 +24,7 @@ func (s StorageHandler) Create(g *gin.Context) {
 
 	files := form.File["files"]
 	for _, file := range files {
-		_, err := s.svc.SendFile(file, g.PostForm("employee"))
+		_, err := s.svc.SendFile(file, g.PostForm("employee"), g.PostForm("employee"), g.GetString("requestOwner"))
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{
 				"erro": err.Error(),

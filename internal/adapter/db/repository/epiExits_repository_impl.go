@@ -55,23 +55,22 @@ func (e EpiExitsRepositoryImpl) NewExit(ctx context.Context, exit domain.EpiExit
 	if err != nil {
 		return nil, err
 	}
-
+	defer session.EndSession(ctx)
 	exit.ID = primitive.NewObjectID()
 	exit.ExitTime = primitive.NewDateTimeFromTime(time.Now())
 
-	err = mongo.WithSession(ctx, session, func(sc mongo.SessionContext) error {
-
-		rst, err := e.db.GetCollection("epiExits").InsertOne(sc, exit)
+	_, err = session.WithTransaction(ctx, func(sessionContext mongo.SessionContext) (interface{}, error) {
+		rst, err := e.db.GetCollection("epiExits").InsertOne(sessionContext, exit)
 		if err != nil {
-			session.AbortTransaction(sc)
-			return err
+			session.AbortTransaction(sessionContext)
+			return nil, err
 		}
 
 		if rst == nil {
-			session.AbortTransaction(sc)
-			return errors.New("unknown error during insert operation")
+			session.AbortTransaction(sessionContext)
+			return nil, errors.New("unknown error during insert operation")
 		}
-		return nil
+		return nil, nil
 	})
 	if err != nil {
 		return nil, err

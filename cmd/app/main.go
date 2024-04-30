@@ -30,6 +30,7 @@ func main() {
 	epiRepo := repository.NewEpiRepositoryImpl(worker)
 	returnableEpiRepo := repository.NewReturnableEpiRepositoryImpl(worker)
 	epiExitsRepo := repository.NewEpiExitsRepositoryImpl(worker)
+	storageRepo := repository.NewStorageRepository(worker)
 
 	authService := service.NewAuthService(userRepo, token)
 	userService := service.NewUserService(userRepo)
@@ -49,13 +50,13 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
-	storageService := service.NewStorageService(nil, domain.StorageAuthentication{
+	storageService := service.NewStorageService(domain.StorageAuthentication{
 		ObjectId: "eec5618c-fa22-42c3-b827-7c5d5443f6ae",
 		ClientId: "a66e44a4-0dd5-4b44-aed0-881ea37799b4",
 		Username: "financeiroerh@AmericaRental932.onmicrosoft.com",
 		Password: "Bj0_20285412",
 		Scopes:   []string{"https://graph.microsoft.com/.default"},
-	})
+	}, storageRepo)
 	storageHandler := handler.NewStorageHandler(storageService)
 
 	router := http.Router(userHandler, authHandler, authMiddleware, employeeActivitiesHandler, storageHandler, employeeHandler, epiHandler, epiExitsHandler, returnableEpiHandler)
