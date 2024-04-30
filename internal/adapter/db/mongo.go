@@ -34,8 +34,8 @@ func (mw *ManagerWorker) StartSession() (mongo.Session, error) {
 
 func InitDb(c context.Context) (*ManagerWorker, error) {
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
-	uri := "mongodb://americarentaldb:Bjc20285412@host.docker.internal:27017/"
-	//uri := "mongodb://localhost:27017/"
+	//uri := "mongodb://americarentaldb:Bjc20285412@host.docker.internal:27017/"
+	uri := "mongodb://localhost:27017/"
 	defer cancel()
 
 	opts := options.Client().ApplyURI(uri)
