@@ -3,9 +3,10 @@ package service
 import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
+	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
@@ -14,11 +15,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type StorageService struct {
-	config  domain.StorageAuthentication
-	storage ports.StorageServices
+	config domain.StorageAuthentication
+	repo   ports.StorageRepository
 }
 
 type JsonGraphSdkResponse struct {
@@ -40,10 +42,10 @@ var token azcore.AccessToken
 var driveId string
 var httpClient = http.Client{}
 
-func NewStorageService(storage ports.StorageServices, config domain.StorageAuthentication) ports.StorageServices {
+func NewStorageService(config domain.StorageAuthentication, repo ports.StorageRepository) ports.StorageServices {
 	return &StorageService{
 		config,
-		storage,
+		repo,
 	}
 }
 
@@ -122,45 +124,8 @@ func (s StorageService) InitializeGraph() error {
 	return nil
 }
 
-func (s StorageService) SendFile(multipartFile *multipart.FileHeader, employeeName string) (bool, error) {
+func (s StorageService) SendFile(multipartFile *multipart.FileHeader, employeeName string, filetype string, actor string) (*domain.OnedriveFile, error) {
 	var fileBytes []byte
-	if client == nil {
-		err := s.InitializeGraph()
-		if err != nil {
-			return false, err
-		}
-	}
-
-	file, err := multipartFile.Open()
-	if err != nil {
-		return false, err
-	}
-
-	_, err = file.Read(fileBytes)
-	if err != nil {
-		return false, err
-	}
-
-	driveItemId, err := s.GetDriveItemId(employeeName)
-	if err != nil {
-		return false, err
-	}
-
-	req := client.Drives().ByDriveId(driveId).Items().ByDriveItemId(driveItemId).Content()
-
-	rst, err := req.Put(context.Background(), fileBytes, nil)
-	if err != nil {
-		return false, err
-	}
-
-	if rst.GetId() == nil {
-		return false, errors.New("Falha ao enviar arquivo")
-	}
-
-	return true, nil
-}
-
-func (s StorageService) ListFiles(employeeName string) ([]domain.StorageResponse, error) {
 	if client == nil {
 		err := s.InitializeGraph()
 		if err != nil {
@@ -168,25 +133,90 @@ func (s StorageService) ListFiles(employeeName string) ([]domain.StorageResponse
 		}
 	}
 
-	driveItemId, err := s.GetDriveItemId(employeeName)
+	file, err := multipartFile.Open()
 	if err != nil {
 		return nil, err
 	}
 
-	children, err := client.Drives().ByDriveId(driveId).Items().ByDriveItemId(driveItemId).Children().Get(context.TODO(), nil)
+	_, err = file.Read(fileBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	var rst []domain.StorageResponse
-	for _, driveItem := range children.GetValue() {
-		gsr := domain.StorageResponse{
-			Id:     driveItem.GetId(),
-			Name:   driveItem.GetName(),
-			WebUrl: driveItem.GetWebUrl(),
+	url := "https://graph.microsoft.com/v1.0/me/drive/items/root:/Rede - RH/RH - América Rental/sistema/" + employeeName + "/" + multipartFile.Filename + ":/content"
+
+	httpClient := &http.Client{}
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	defer func(writer *multipart.Writer) {
+		err := writer.Close()
+		if err != nil {
+			fmt.Println(err)
 		}
-		rst = append(rst, gsr)
+	}(writer)
+
+	part, err := writer.CreateFormFile("file", multipartFile.Filename)
+	if err != nil {
+		return nil, err
 	}
 
-	return rst, nil
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", url, body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Authorization", "Bearer "+token.Token)
+
+	rst, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	var response domain.OnedriveFileActionResponse
+	rstBody, err := io.ReadAll(rst.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(rstBody, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	newOnedriveFile := domain.OnedriveFile{
+		Filename:    response.Name,
+		FileUrl:     response.WebURL,
+		DriveItemId: response.ID,
+		Employee:    employeeName,
+		Type:        filetype,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+		UpdatedBy:   actor,
+	}
+
+	information, err := s.repo.RegisterUpdateInformation(context.TODO(), newOnedriveFile, actor)
+	if err != nil {
+		return nil, err
+	}
+
+	return information, nil
 }
+
+func (s StorageService) ListFiles(employeeName string) (*[]domain.OnedriveFile, error) {
+
+	result, err := s.repo.GetOnedriveFilesByEmployee(context.TODO(), employeeName)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s StorageService) DeleteFile(driveItemId string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+//TODO criar um método que crie o path corretamente para o envio de arquivos. A subpasta do colaborador deve ser de
+// acordo com o tipo de arquivo, arquivos comuns e outros devem permanecer na raiz
