@@ -2,6 +2,7 @@ package main
 
 import (
 	"america-rental-backend/internal/adapter/Auth"
+	"america-rental-backend/internal/adapter/config"
 	"america-rental-backend/internal/adapter/db"
 	"america-rental-backend/internal/adapter/db/repository"
 	"america-rental-backend/internal/adapter/http"
@@ -14,6 +15,11 @@ import (
 
 func main() {
 	token, err := Auth.New()
+	if err != nil {
+		panic(err)
+	}
+
+	container, err := config.New()
 	if err != nil {
 		panic(err)
 	}
@@ -51,10 +57,10 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware(token)
 
 	storageService := service.NewStorageService(domain.StorageAuthentication{
-		ObjectId: "eec5618c-fa22-42c3-b827-7c5d5443f6ae",
-		ClientId: "a66e44a4-0dd5-4b44-aed0-881ea37799b4",
-		Username: "financeiroerh@AmericaRental932.onmicrosoft.com",
-		Password: "Bj0_20285412",
+		ObjectId: container.Onedrive.ObjectId,
+		ClientId: container.Onedrive.ClientId,
+		Username: container.Onedrive.Username,
+		Password: container.Onedrive.Password,
 		Scopes:   []string{"https://graph.microsoft.com/.default"},
 	}, storageRepo)
 	storageHandler := handler.NewStorageHandler(storageService)
