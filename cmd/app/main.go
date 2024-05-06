@@ -25,7 +25,7 @@ func main() {
 	}
 
 	ctx := context.TODO()
-	worker, err := db.InitDb(ctx)
+	worker, err := db.InitDb(ctx, container.Mongo.Uri, container.Mongo.Database)
 	if err != nil {
 		panic(err)
 	}

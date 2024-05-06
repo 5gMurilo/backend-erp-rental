@@ -24,7 +24,7 @@ func (s StorageHandler) Create(g *gin.Context) {
 
 	files := form.File["files"]
 	for _, file := range files {
-		_, err := s.svc.SendFile(file, g.PostForm("employee"), g.PostForm("employee"), g.GetString("requestOwner"))
+		_, err := s.svc.SendFile(file, g.PostForm("employee"), g.PostForm("type"), g.GetString("requestOwner"))
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{
 				"erro": err.Error(),
@@ -39,16 +39,8 @@ func (s StorageHandler) Create(g *gin.Context) {
 }
 
 func (s StorageHandler) List(g *gin.Context) {
-	form, err := g.MultipartForm()
-	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{
-			"erro": err.Error(),
-		})
-	}
-
-	empName := form.Value["employee"][0]
-
-	files, err := s.svc.ListFiles(empName)
+	employee := g.Param("name")
+	files, err := s.svc.ListFiles(employee)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"erro": err.Error(),

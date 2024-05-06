@@ -1,14 +1,13 @@
 package config
 
 import (
-	"os"
-
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 type (
 	Container struct {
 		Onedrive *Onedrive
+		Mongo    *Mongo
 	}
 
 	Onedrive struct {
@@ -17,22 +16,38 @@ type (
 		Username string
 		Password string
 	}
+
+	Mongo struct {
+		Uri      string
+		Database string
+	}
 )
 
 func New() (*Container, error) {
-	err := godotenv.Load()
-	if err != nil {
+
+	viper.SetConfigName("app")
+	//viper.AddConfigPath(".")
+	viper.AddConfigPath("../../")
+	viper.AutomaticEnv()
+	viper.SetConfigType("env")
+	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
 	onedrive := &Onedrive{
-		ObjectId: os.Getenv("ONEDRIVE_OBJECT_ID"),
-		ClientId: os.Getenv("ONEDRIVE_CLIENT_ID"),
-		Username: os.Getenv("ONEDRIVE_USERNAME"),
-		Password: os.Getenv("ONEDRIVE_PASSWORD"),
+		ObjectId: viper.GetString("ONEDRIVE_OBJECT_ID"),
+		ClientId: viper.GetString("ONEDRIVE_CLIENT_ID"),
+		Username: viper.GetString("ONEDRIVE_USERNAME"),
+		Password: viper.GetString("ONEDRIVE_PASSWORD"),
+	}
+
+	mongo := &Mongo{
+		Uri:      viper.GetString("MONGO_URI"),
+		Database: viper.GetString("MONGO_DATABASE"),
 	}
 
 	return &Container{
 		Onedrive: onedrive,
+		Mongo:    mongo,
 	}, nil
 }

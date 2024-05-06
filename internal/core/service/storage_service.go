@@ -3,6 +3,7 @@ package service
 import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
+	"america-rental-backend/internal/core/util"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -103,7 +104,6 @@ func (s StorageService) InitializeGraph() error {
 		EnableCAE: false,
 		Scopes:    s.config.Scopes,
 		TenantID:  s.config.ObjectId,
-		//TenantID:  "eada9b66-9e51-45a5-858e-ad99eddb9c48",
 	})
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func (s StorageService) SendFile(multipartFile *multipart.FileHeader, employeeNa
 		return nil, err
 	}
 
-	url := "https://graph.microsoft.com/v1.0/me/drive/items/root:/Rede - RH/RH - América Rental/sistema/" + employeeName + "/" + multipartFile.Filename + ":/content"
+	url := util.NewPathFile(employeeName, filetype, multipartFile.Filename)
 
 	httpClient := &http.Client{}
 	body := &bytes.Buffer{}
@@ -204,7 +204,6 @@ func (s StorageService) SendFile(multipartFile *multipart.FileHeader, employeeNa
 }
 
 func (s StorageService) ListFiles(employeeName string) (*[]domain.OnedriveFile, error) {
-
 	result, err := s.repo.GetOnedriveFilesByEmployee(context.TODO(), employeeName)
 	if err != nil {
 		return nil, err
@@ -218,5 +217,5 @@ func (s StorageService) DeleteFile(driveItemId string) error {
 	panic("implement me")
 }
 
-//TODO criar um método que crie o path corretamente para o envio de arquivos. A subpasta do colaborador deve ser de
-// acordo com o tipo de arquivo, arquivos comuns e outros devem permanecer na raiz
+// TODO -> criar um contrato para update de um arquivo já existente
+// TODO -> Finalizar Delete

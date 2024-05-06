@@ -71,7 +71,25 @@ func (s StorageRepository) GetOnedriveFilesByEmployee(ctx context.Context, emplo
 	return &results, nil
 }
 
-func (s StorageRepository) UpdateOnedriveFile(ctx context.Context, file domain.OnedriveFile, actor string) (*domain.OnedriveFile, error) {
-	//TODO implement me
-	panic("implement me")
+func (s StorageRepository) UpdateOnedriveFile(ctx context.Context, file domain.OnedriveFile, _ string) (*domain.OnedriveFile, error) {
+	session, err := s.db.StartSession()
+	if err != nil {
+		return nil, err
+	}
+	defer session.EndSession(ctx)
+
+	var result domain.OnedriveFile
+	_, err = session.WithTransaction(context.TODO(), func(sessionContext mongo.SessionContext) (interface{}, error) {
+		err := sessionContext.Client().Database("america").Collection(collection).FindOneAndReplace(context.TODO(), bson.M{"_id": file.Id}, file).Decode(&result)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

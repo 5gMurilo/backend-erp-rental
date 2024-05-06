@@ -75,7 +75,7 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 		onedriveRoutes := api.Group("/onedrive").Use(middleware.AuthenticationMiddleware)
 		{
 			onedriveRoutes.PUT("/new", storageHandler.Create)
-			onedriveRoutes.GET("/all", storageHandler.List)
+			onedriveRoutes.GET("/all/:name", storageHandler.List)
 		}
 	}
 
