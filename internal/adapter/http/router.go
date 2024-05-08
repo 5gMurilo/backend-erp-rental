@@ -14,7 +14,7 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
 
 		if ctx.Request.Method == "OPTIONS" {
 			ctx.AbortWithStatus(204)
@@ -75,7 +75,8 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 		onedriveRoutes := api.Group("/onedrive").Use(middleware.AuthenticationMiddleware)
 		{
 			onedriveRoutes.PUT("/new", storageHandler.Create)
-			onedriveRoutes.GET("/all", storageHandler.List)
+			onedriveRoutes.GET("/all/:name", storageHandler.List)
+			onedriveRoutes.DELETE("/delete/:driveItem", storageHandler.Delete)
 		}
 	}
 

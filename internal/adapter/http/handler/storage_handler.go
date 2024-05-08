@@ -24,7 +24,7 @@ func (s StorageHandler) Create(g *gin.Context) {
 
 	files := form.File["files"]
 	for _, file := range files {
-		_, err := s.svc.SendFile(file, g.PostForm("employee"), g.PostForm("employee"), g.GetString("requestOwner"))
+		_, err := s.svc.SendFile(file, g.PostForm("employee"), g.PostForm("type"), g.GetString("requestOwner"))
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{
 				"erro": err.Error(),
@@ -39,16 +39,8 @@ func (s StorageHandler) Create(g *gin.Context) {
 }
 
 func (s StorageHandler) List(g *gin.Context) {
-	form, err := g.MultipartForm()
-	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{
-			"erro": err.Error(),
-		})
-	}
-
-	empName := form.Value["employee"][0]
-
-	files, err := s.svc.ListFiles(empName)
+	employee := g.Param("name")
+	files, err := s.svc.ListFiles(employee)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"erro": err.Error(),
@@ -58,5 +50,21 @@ func (s StorageHandler) List(g *gin.Context) {
 
 	g.JSON(http.StatusOK, gin.H{
 		"files": files,
+	})
+}
+
+func (s StorageHandler) Delete(g *gin.Context) {
+	driveItemId := g.Param("driveItem")
+
+	err := s.svc.DeleteFile(driveItemId)
+	if err != nil {
+		g.JSON(500, gin.H{
+			"erro": err.Error(),
+		})
+		return
+	}
+
+	g.JSON(200, gin.H{
+		"sucesso": "O arquivo foi removido do onedrive com sucesso!",
 	})
 }
