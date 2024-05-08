@@ -69,7 +69,12 @@ func (s StorageService) GetDriveItemId(employeeName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
 
 	var j JsonGraphSdkResponse
 	respBody, err := io.ReadAll(res.Body)

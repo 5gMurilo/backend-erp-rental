@@ -29,6 +29,7 @@ func (s StorageRepository) RegisterUpdateInformation(ctx context.Context, onedri
 	defer session.EndSession(ctx)
 
 	onedriveFile.Id = primitive.NewObjectID()
+	onedriveFile.UpdatedBy = actor
 
 	_, err = session.WithTransaction(context.TODO(), func(sessionContext mongo.SessionContext) (interface{}, error) {
 		rst, err := sessionContext.Client().Database("america").Collection(collection).InsertOne(context.TODO(), onedriveFile)
