@@ -213,9 +213,22 @@ func (s StorageService) ListFiles(employeeName string) (*[]domain.OnedriveFile, 
 }
 
 func (s StorageService) DeleteFile(driveItemId string) error {
-	//TODO implement me
-	panic("implement me")
-}
+	if client == nil {
+		err := s.InitializeGraph()
+		if err != nil {
+			return err
+		}
+	}
 
-// TODO -> criar um contrato para update de um arquivo já existente
-// TODO -> Finalizar Delete
+	err := client.Drives().ByDriveId(driveId).Items().ByDriveItemId(driveItemId).Delete(context.Background(), nil)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.DeleteOnedriveFile(context.TODO(), driveItemId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

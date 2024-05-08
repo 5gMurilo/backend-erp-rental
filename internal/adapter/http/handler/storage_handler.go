@@ -52,3 +52,19 @@ func (s StorageHandler) List(g *gin.Context) {
 		"files": files,
 	})
 }
+
+func (s StorageHandler) Delete(g *gin.Context) {
+	driveItemId := g.Param("driveItem")
+
+	err := s.svc.DeleteFile(driveItemId)
+	if err != nil {
+		g.JSON(500, gin.H{
+			"erro": err.Error(),
+		})
+		return
+	}
+
+	g.JSON(200, gin.H{
+		"sucesso": "O arquivo foi removido do onedrive com sucesso!",
+	})
+}

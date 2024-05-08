@@ -93,3 +93,12 @@ func (s StorageRepository) UpdateOnedriveFile(ctx context.Context, file domain.O
 
 	return &result, nil
 }
+
+func (s StorageRepository) DeleteOnedriveFile(ctx context.Context, driveItemid string) error {
+	sr := s.db.GetCollection(collection).FindOneAndDelete(ctx, bson.M{"driveItemId": driveItemid})
+	if sr.Err() != nil {
+		return sr.Err()
+	}
+
+	return nil
+}
