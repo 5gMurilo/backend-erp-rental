@@ -61,8 +61,8 @@ type Employee struct {
 	PantsSize             string             `json:"pantsSize" bson:"pantsSize" binding:"required"`
 	BootSize              string             `json:"bootSize" bson:"bootSize" binding:"required"`
 	EpiFile               string             `json:"epiFile" bson:"epiFile" binding:"required"`
-	CreatedAt             primitive.DateTime `json:"createdAt" bson:"createdAt"`
-	UpdatedAt             primitive.DateTime `json:"updatedAt" bson:"updatedAt"`
+	CreatedAt             primitive.DateTime `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
+	UpdatedAt             primitive.DateTime `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	ModifiedBy            string             `json:"modifiedBy" bson:"modifiedBy"`
 }
 

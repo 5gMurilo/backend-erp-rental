@@ -4,11 +4,8 @@ import (
 	"america-rental-backend/internal/core/domain"
 	"america-rental-backend/internal/core/ports"
 	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
 type EpiExitsHandler struct {
@@ -35,9 +32,15 @@ func (e EpiExitsHandler) GetAll(g *gin.Context) {
 func (e EpiExitsHandler) New(g *gin.Context) {
 	var body domain.EpiExits
 
-	g.ShouldBindJSON(&body)
+	err := g.ShouldBindJSON(&body)
+	if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	body.ExitTime = primitive.NewDateTimeFromTime(time.Now())
+	body.GaveBy = g.GetString("requestOwner")
 
 	rst, err := e.svc.NewExit(g, body)
 	if err != nil {

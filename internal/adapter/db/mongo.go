@@ -10,23 +10,23 @@ import (
 )
 
 type ManagerWorker struct {
-	client   *mongo.Client
-	database string
+	Client   *mongo.Client
+	Database string
 }
 
 func newManagerWorker(c *mongo.Client, database string) *ManagerWorker {
 	return &ManagerWorker{
-		client:   c,
-		database: database,
+		Client:   c,
+		Database: database,
 	}
 }
 
 func (mw *ManagerWorker) GetCollection(collectionName string) *mongo.Collection {
-	return mw.client.Database(mw.database).Collection(collectionName)
+	return mw.Client.Database(mw.Database).Collection(collectionName)
 }
 
 func (mw *ManagerWorker) StartSession() (mongo.Session, error) {
-	if session, err := mw.client.StartSession(); err != nil {
+	if session, err := mw.Client.StartSession(); err != nil {
 		log.Println(err)
 		return nil, err
 	} else {

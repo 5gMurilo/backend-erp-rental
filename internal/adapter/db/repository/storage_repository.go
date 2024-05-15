@@ -15,7 +15,7 @@ type StorageRepository struct {
 	db *db.ManagerWorker
 }
 
-const collection = "storage"
+const _collection = "storage"
 
 func NewStorageRepository(db *db.ManagerWorker) ports.StorageRepository {
 	return &StorageRepository{db}
@@ -32,7 +32,7 @@ func (s StorageRepository) RegisterUpdateInformation(ctx context.Context, onedri
 	onedriveFile.UpdatedBy = actor
 
 	_, err = session.WithTransaction(context.TODO(), func(sessionContext mongo.SessionContext) (interface{}, error) {
-		rst, err := sessionContext.Client().Database("america").Collection(collection).InsertOne(context.TODO(), onedriveFile)
+		rst, err := sessionContext.Client().Database("america").Collection(_collection).InsertOne(context.TODO(), onedriveFile)
 		if err != nil {
 			fmt.Println(err)
 			err := session.AbortTransaction(sessionContext)
@@ -59,7 +59,7 @@ func (s StorageRepository) RegisterUpdateInformation(ctx context.Context, onedri
 }
 
 func (s StorageRepository) GetOnedriveFilesByEmployee(ctx context.Context, employeeName string) (*[]domain.OnedriveFile, error) {
-	cursor, err := s.db.GetCollection(collection).Find(ctx, bson.M{"employee": employeeName})
+	cursor, err := s.db.GetCollection(_collection).Find(ctx, bson.M{"employee": employeeName})
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (s StorageRepository) UpdateOnedriveFile(ctx context.Context, file domain.O
 
 	var result domain.OnedriveFile
 	_, err = session.WithTransaction(context.TODO(), func(sessionContext mongo.SessionContext) (interface{}, error) {
-		err := sessionContext.Client().Database("america").Collection(collection).FindOneAndReplace(context.TODO(), bson.M{"_id": file.Id}, file).Decode(&result)
+		err := sessionContext.Client().Database("america").Collection(_collection).FindOneAndReplace(context.TODO(), bson.M{"_id": file.Id}, file).Decode(&result)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func (s StorageRepository) UpdateOnedriveFile(ctx context.Context, file domain.O
 }
 
 func (s StorageRepository) DeleteOnedriveFile(ctx context.Context, driveItemid string) error {
-	sr := s.db.GetCollection(collection).FindOneAndDelete(ctx, bson.M{"driveItemId": driveItemid})
+	sr := s.db.GetCollection(_collection).FindOneAndDelete(ctx, bson.M{"driveItemId": driveItemid})
 	if sr.Err() != nil {
 		return sr.Err()
 	}
