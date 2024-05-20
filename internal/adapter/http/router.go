@@ -44,6 +44,7 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 			employeeRoutes.GET("/:id", employeeHandler.GetById)
 			employeeRoutes.GET("/all", employeeHandler.GetAll)
 			employeeRoutes.GET("/activities/:id", activitiesHandler.Get)
+			employeeRoutes.POST("/activities/new", activitiesHandler.New)
 			employeeRoutes.POST("/new", employeeHandler.New)
 			employeeRoutes.PUT("/update/:id", employeeHandler.Update)
 		}

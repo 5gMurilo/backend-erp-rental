@@ -6,6 +6,6 @@ type EmployeeActivityLog struct {
 	Id       primitive.ObjectID `json:"id" bson:"_id"`
 	Activity string             `json:"activity" bson:"activity" binding:"required"`
 	Employee Employee           `json:"employee" bson:"employee" binding:"required"`
-	Actor    string             `json:"actor" bson:"actor" binding:"required"`
+	Actor    string             `json:"actor" bson:"actor"`
 	At       primitive.DateTime `json:"didAt" bson:"didAt"`
 }
