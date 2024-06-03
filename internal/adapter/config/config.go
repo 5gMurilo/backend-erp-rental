@@ -26,8 +26,8 @@ type (
 func New() (*Container, error) {
 
 	viper.SetConfigName("app")
-	viper.AddConfigPath("./src")
-	// viper.AddConfigPath("../../")
+	//viper.AddConfigPath("./src")
+	viper.AddConfigPath("./")
 	viper.AutomaticEnv()
 	viper.SetConfigType("env")
 	if err := viper.ReadInConfig(); err != nil {

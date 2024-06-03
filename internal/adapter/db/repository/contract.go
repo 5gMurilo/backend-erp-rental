@@ -19,8 +19,14 @@ func NewContractRepository(db db.ManagerWorker) ports.ContractRepository {
 }
 
 func (c ContractRepositoryImpl) GetContractById(id primitive.ObjectID) (*domain.ContractData, error) {
-	//TODO implement me
-	panic("implement me")
+	var contract *domain.ContractData
+
+	err := c.db.GetCollection("contract").FindOne(context.Background(), bson.M{"_id": id}).Decode(&contract)
+	if err != nil {
+		return nil, err
+	}
+
+	return contract, nil
 }
 
 func (c ContractRepositoryImpl) GetContractByEmployee(employee domain.Employee) (*domain.ContractData, error) {
@@ -34,8 +40,22 @@ func (c ContractRepositoryImpl) GetContractByStatus(status domain.ContractStatus
 }
 
 func (c ContractRepositoryImpl) GetContracts() ([]domain.ContractData, error) {
-	//TODO implement me
-	panic("implement me")
+	var contracts []domain.ContractData
+	cursor, err := c.db.GetCollection("contract").Find(context.Background(), bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = cursor.All(context.Background(), &contracts)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(contracts) == 0 {
+		return []domain.ContractData{}, err
+	}
+
+	return contracts, nil
 }
 
 func (c ContractRepositoryImpl) CreateContract(contract domain.ContractData) (*domain.ContractData, error) {
@@ -149,7 +169,7 @@ func (c ContractRepositoryImpl) DeleteContract(id primitive.ObjectID) error {
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 

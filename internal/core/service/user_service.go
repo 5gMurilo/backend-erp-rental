@@ -26,7 +26,6 @@ func (u UserService) Get(c context.Context, id primitive.ObjectID) (*domain.User
 	if usr == nil {
 		return nil, errors.New("no user found")
 	}
-
 	return usr, nil
 }
 

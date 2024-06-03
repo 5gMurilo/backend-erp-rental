@@ -51,11 +51,11 @@ func Router(userHandler handler.UserHandler, authHandler handler.AuthHandler, mi
 
 		epiRoutes := api.Group("/epi").Use(middleware.AuthenticationMiddleware)
 		{
-			epiRoutes.GET("/all", epiHandler.GetAll)
 			epiRoutes.GET("/:id", epiHandler.GetById)
-			epiRoutes.POST("/new", epiHandler.NewEpi)
-			epiRoutes.PUT("/update/:id", epiHandler.UpdateEpi)
-			epiRoutes.DELETE("/delete/:id", epiHandler.DeleteEpi)
+			epiRoutes.GET("/all", epiHandler.GetAll)
+			//epiRoutes.POST("/new", epiHandler.NewEpi)
+			//epiRoutes.PUT("/update/:id", epiHandler.UpdateEpi)
+			//epiRoutes.DELETE("/delete/:id", epiHandler.DeleteEpi)
 		}
 
 		returnableEpiRoutes := api.Group("/returnable_epi").Use(middleware.AuthenticationMiddleware)
